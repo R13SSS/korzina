@@ -221,6 +221,7 @@ function render() {
   rec ? renderRecipes() : renderList();
 }
 const REPO_OK = /^[\w.-]+\/[\w.-]+$/;
+const IN_APP = /[?&]app=1(&|$)/.test(location.search);
 function askUrl(text) {
   const t = text.trim(), title = t.replace(/\s+/g, ' ').slice(0, 80);
   return `https://github.com/${DATA.repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(t)}`;
@@ -230,7 +231,7 @@ function renderAsk() {
   const draft = store.get('cart:askDraft', '');
   $('#askbox').innerHTML = `<section class="panel ask"><div class="ph"><h2>Что ещё купить?</h2></div>
     <textarea id="ask" placeholder="Например: молоко, яйца, что-нибудь к чаю"></textarea>
-    <a class="go" id="askSend" href="${esc(askUrl(draft))}" target="_blank" rel="noopener">Отправить запрос</a>
+    <a class="go" id="askSend" href="${esc(askUrl(draft))}"${IN_APP ? '' : ' target="_blank" rel="noopener"'}>Отправить запрос</a>
     <div class="hint">Откроется GitHub — нажми там «Create». Потом напиши Claude «обнови корзину».</div>
     <div class="pend" id="pending"></div></section>`;
   $('#ask').value = draft;

@@ -4,7 +4,7 @@
 
 ## Данные
 - `data/cart.json`: `repo`, `lists` (НОВЫЙ список первым — сайт и виджет показывают `lists[0]`), `recipes`.
-- Товар: `id`, `group`, `name`, `size`, `price` (за штуку или за кг), `old` (цена без скидки, если есть), `qty`, `step`/`unit: "кг"` для развесного, `img` (`img/<id>.jpg`), `note` (необязательно).
+- Товар: `id`, `group`, `name`, `short` (короткое имя для виджета, до ~18 символов), `size`, `price` (за штуку или за кг), `old` (цена без скидки, если есть), `qty`, `step`/`unit: "кг"` для развесного, `img` (`img/<id>.jpg`), `note` (необязательно).
 - Картинки: скачать `https://avatars.mds.yandex.net/get-eda/<id>/<hash>/300x300nocrop`, положить на белый фон, уменьшить до 240 px, сохранить JPEG в `img/`.
 - Рецепт: `id`, `title`, `time`, `servings`, `ingredients[{name, amount, unit, home?}]`, `steps[{title, text, min?}]`, `notes`. Список ссылается на рецепты через `recipes: [id]`.
 
@@ -21,7 +21,7 @@
 - Макароны — Barilla.
 
 ## Виджет
-`scriptable/korzina-widget.js` и его копия `scriptable/korzina-widget.txt` (для копирования из Safari) должны совпадать. Без обратных кавычек (template literals): при копировании на iPhone они теряются.
+`scriptable/korzina-widget.js` и его копия `scriptable/korzina-widget.txt` (для копирования из Safari) должны совпадать. Без обратных кавычек (template literals): при копировании на iPhone они теряются. Виджет текстовый (без фото): на экране «Домой» в прозрачном/tinted режиме iOS заливает картинки одним цветом. Нажатие запускает скрипт (`scriptable:///run/<имя>`), он открывает сайт во весь экран через WebView с `?app=1`; ссылки вне сайта уходят в Safari.
 
 ## После изменений
 Пересобрать офлайн-версию: `python3 build_offline.py korzina.html` (файл не коммитить, отправить пользователю, если попросит).
