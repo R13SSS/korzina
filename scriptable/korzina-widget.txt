@@ -46,7 +46,10 @@ async function loadPending(repo) {
     req.headers = { "Accept": "application/vnd.github+json" };
     const list = await req.loadJSON();
     if (!Array.isArray(list)) return 0;
-    return list.filter(function (i) { return !i.pull_request; }).length;
+    const owner = repo.split("/")[0].toLowerCase();
+    return list.filter(function (i) {
+      return !i.pull_request && i.user && String(i.user.login).toLowerCase() === owner && String(i.title).indexOf("🧾") !== 0;
+    }).length;
   } catch (e) {
     return 0;
   }

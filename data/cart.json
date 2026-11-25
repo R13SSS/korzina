@@ -20,22 +20,26 @@
         {
           "id": "dinner",
           "title": "На ужин",
-          "emoji": "🍝"
+          "emoji": "🍝",
+          "cat": "Еда"
         },
         {
           "id": "tea",
           "title": "К чаю",
-          "emoji": "🍪"
+          "emoji": "🍪",
+          "cat": "Сладкое"
         },
         {
           "id": "snack",
           "title": "Перекус в морозилку",
-          "emoji": "🥞"
+          "emoji": "🥞",
+          "cat": "Еда"
         },
         {
           "id": "milk",
           "title": "Молочное",
-          "emoji": "🥛"
+          "emoji": "🥛",
+          "cat": "Молочное"
         }
       ],
       "items": [

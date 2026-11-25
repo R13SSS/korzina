@@ -1,0 +1,24 @@
+name: Записать чек в расходы
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: history
+  cancel-in-progress: false
+
+jobs:
+  trip:
+    if: github.event.issue.user.login == github.repository_owner && contains(github.event.issue.body, 'korzina-trip')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Записать чек
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tools/add_trip.py
