@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Корзина</title>
+<meta name="theme-color" content="#141414">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Корзина">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly and practical, a cart you check off while walking the aisles
+   IDEA: a delivery-app basket carried into the real store
+   PICTURE: the basket itself: product photos on white tiles, steppers, struck-out old prices
+   COLOUR and TYPE: graphite night ground / warm paper by day, white cards, one sunflower-yellow action, orange sale prices; Onest
+   LAYOUT: one column up to 720px, list and recipes as tabs, total bar pinned to the bottom */
+:root{color-scheme:light dark;--bg:light-dark(#efeee9,#141414);--card:light-dark(#fff,#222);--card2:light-dark(#f4f3ef,#2c2c2c);--ink:light-dark(#151515,#f2f2f2);--mute:light-dark(#6d6b66,#9d9d9d);--line:light-dark(#e7e5df,#323232);--acc:#ffd92e;--acc-ink:#151515;--sale:light-dark(#e3441b,#ff7a4d);--ok:#2fa84f}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Onest,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding:22px 14px 150px}
+h1{font-size:clamp(32px,7vw,44px);line-height:1.05;margin:0 0 6px;font-weight:800;text-wrap:balance}
+.sub{color:var(--mute);font-size:15px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0 0;scrollbar-width:none}
+.chip{flex:none;border:0;border-radius:999px;padding:0 16px;min-height:44px;background:var(--card);font-weight:500}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.tabs{display:flex;gap:4px;background:var(--card2);border-radius:18px;padding:4px;margin:16px 0}
+.tabs button{flex:1;border:0;border-radius:14px;min-height:44px;background:transparent;color:var(--mute);font-weight:600}
+.tabs button[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 4px #0000001f}
+.panel{background:var(--card);border-radius:28px;padding:18px 18px 8px;margin-bottom:12px}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.panel h2{font-size:22px;line-height:1.2;margin:0;font-weight:700}
+.cnt{color:var(--mute);font-size:14px;white-space:nowrap}
+.row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:4px 14px;padding:14px 0;border-top:1px solid var(--line)}
+.ph+.row{border-top:0}
+.pic{grid-row:span 2;position:relative;width:76px;height:76px;border:0;padding:6px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px light-dark(#ecebe6,#0000)}
+.pic img{width:100%;height:100%;object-fit:contain;display:block}
+.badge{position:absolute;left:-4px;top:-6px;background:var(--ok);color:#fff;font-size:12px;font-weight:700;border-radius:8px;padding:1px 6px}
+.tick{position:absolute;right:-6px;bottom:-6px;width:28px;height:28px;border-radius:50%;background:var(--card);border:2px solid var(--line);display:grid;place-items:center}
+.tick svg{width:16px;height:16px;opacity:0}
+.done .tick{background:var(--ok);border-color:var(--ok)}.done .tick svg{opacity:1}
+.done .pic img{opacity:.45}.done .name{text-decoration:line-through;color:var(--mute)}
+.name{font-weight:600;line-height:1.3}
+.size{color:var(--mute);font-size:14px}
+.note{font-size:14px;color:var(--mute);background:var(--card2);border-radius:12px;padding:8px 10px;margin-top:8px}
+.bot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px}
+.step{display:flex;align-items:center;background:var(--card2);border-radius:14px}
+.step button{width:44px;height:44px;border:0;background:transparent;font-size:22px;line-height:1}
+.step span{min-width:52px;text-align:center;font-weight:600;white-space:nowrap}
+.pr{text-align:right;white-space:nowrap}
+.pr b{font-size:18px;font-weight:700}.pr b.s{color:var(--sale)}
+.pr s{display:block;color:var(--mute);font-size:13px}
+.sum{display:grid;gap:6px;padding:4px 0 12px}
+.sum div{display:flex;justify-content:space-between;gap:12px}
+.sum .m{color:var(--mute);font-size:15px}
+.sum div>span:last-child{white-space:nowrap;flex:none}
+.sum .big{font-size:20px;font-weight:700;border-top:1px solid var(--line);padding-top:10px;margin-top:4px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 16px}
+.ghost{border:0;border-radius:14px;min-height:44px;padding:0 14px;background:var(--card);font-weight:500;font-size:15px}
+.ghost[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+.bar .in{max-width:692px;margin:0 auto;background:var(--card);border-radius:24px;padding:10px 10px 10px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 24px #0000002e}
+.tot{flex:1}.tot b{font-size:22px;font-weight:800;white-space:nowrap}.tot small{display:block;color:var(--mute);font-size:13px;white-space:nowrap}
+.go{border:0;border-radius:18px;min-height:52px;padding:0 18px;background:var(--acc);color:var(--acc-ink);font-weight:700;font-size:16px}
+.ing{list-style:none;margin:0;padding:0}
+.ing li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.ing li span:last-child{white-space:nowrap;font-weight:600}
+.home{color:var(--mute);font-size:13px;margin-left:6px}
+.meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--mute);font-size:15px;margin:6px 0 10px}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.steps li::before{content:counter(s);width:36px;height:36px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font-weight:700}
+.steps b{display:block}.min{display:inline-block;margin-top:6px;font-size:13px;font-weight:600;background:var(--card2);border-radius:8px;padding:2px 8px}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+dialog{border:0;border-radius:24px;padding:18px;width:min(560px,92vw);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:#0008}
+dialog textarea{width:100%;height:46vh;border:1px solid var(--line);border-radius:14px;padding:10px;font:15px/1.45 Onest,sans-serif;background:var(--card2);color:var(--ink)}
+.err{padding:40px 0;color:var(--mute)}
+.ask textarea{width:100%;min-height:76px;margin:10px 0;border:1px solid var(--line);border-radius:16px;padding:12px 14px;font:16px/1.4 Onest,system-ui,sans-serif;background:var(--card2);color:var(--ink);resize:vertical}
+.ask textarea:focus{outline:3px solid var(--acc);outline-offset:1px}
+.ask .go{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;width:100%}
+.ask .hint{color:var(--mute);font-size:13px;margin:8px 0 10px}
+.pend{border-top:1px solid var(--line);margin-top:6px;padding:10px 0 4px}
+.pend .pt{font-weight:600;font-size:15px;margin-bottom:4px}
+.pend .pi{font-size:15px;padding:4px 0 4px 18px;position:relative}
+.pend .pi::before{content:"";position:absolute;left:2px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--acc)}
+.pend:empty{display:none}
+@media(max-width:400px){.row{grid-template-columns:64px minmax(0,1fr)}.pic{width:64px;height:64px}.go{padding:0 14px;font-size:15px}}
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Корзина</h1>
+    <div class="sub" id="sub">Загружаю список…</div>
+    <div class="chips" id="chips" role="group" aria-label="Списки"></div>
+  </header>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="t-list" aria-selected="true">Список</button>
+    <button role="tab" id="t-recipes" aria-selected="false">Рецепты</button>
+  </div>
+  <div id="askbox"></div>
+  <main id="view"></main>
+</div>
+<div class="bar" id="bar" hidden>
+  <div class="in">
+    <div class="tot"><b id="total">0 ₽</b><small id="totsub"></small></div>
+    <button class="go" id="copy">Скопировать для Telegram</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="dlg">
+  <p style="margin:0 0 10px;font-weight:600">Скопируй текст вручную</p>
+  <textarea id="dlgText" readonly></textarea>
+  <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="go" id="dlgClose">Готово</button></div>
+</dialog>
+<script>
+{
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rub = n => new Intl.NumberFormat('ru-RU').format(Math.round(n)) + ' ₽';
+const num = n => new Intl.NumberFormat('ru-RU', {maximumFractionDigits: 2}).format(n);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+let DATA = null, list = null, bought = new Set(), qty = {}, hideDone = false, serv = {};
+
+function lineQty(it) { return qty[it.id] ?? it.qty; }
+function totals() {
+  let sum = 0, old = 0, n = 0, done = 0;
+  for (const it of list.items) {
+    const q = lineQty(it); if (q <= 0) continue;
+    n++; if (bought.has(it.id)) done++;
+    sum += it.price * q; old += (it.old || it.price) * q;
+  }
+  return { sum, old, save: old - sum, n, done };
+}
+function qtyLabel(it) {
+  const q = lineQty(it);
+  return it.unit === 'кг' ? (q < 1 ? num(q * 1000) + ' г' : num(q) + ' кг') : num(q) + ' шт';
+}
+function save() { store.set('cart:' + list.id + ':bought', [...bought]); store.set('cart:' + list.id + ':qty', qty); }
+
+function renderChips() {
+  const c = $('#chips');
+  if (DATA.lists.length < 2) { c.innerHTML = ''; return; }
+  c.innerHTML = DATA.lists.map(l => `<button class="chip" data-list="${esc(l.id)}" aria-pressed="${l.id === list.id}">${esc(l.title)} · ${esc(l.date)}</button>`).join('');
+}
+function renderList() {
+  const t = totals();
+  const groups = list.groups.map(g => {
+    const items = list.items.filter(it => it.group === g.id && !(hideDone && bought.has(it.id)));
+    if (!items.length) return '';
+    const all = list.items.filter(it => it.group === g.id);
+    const d = all.filter(it => bought.has(it.id)).length;
+    return `<section class="panel"><div class="ph"><h2>${esc(g.title)}</h2><span class="cnt">${d} из ${all.length}</span></div>` +
+      items.map(it => {
+        const q = lineQty(it), off = it.old ? Math.round((1 - it.price / it.old) * 100) : 0;
+        return `<div class="row${bought.has(it.id) ? ' done' : ''}">
+          <button class="pic" data-tick="${esc(it.id)}" aria-label="${bought.has(it.id) ? 'Снять отметку' : 'Отметить купленным'}: ${esc(it.name)}">
+            <img src="${esc(it.img)}" alt="" loading="lazy">${off ? `<span class="badge">−${off}%</span>` : ''}<span class="tick">${CHECK}</span></button>
+          <div><div class="name">${esc(it.name)}</div><div class="size">${esc(it.size)}${it.unit === 'кг' ? ' · ' + rub(it.price) + '/кг' : ''}</div>
+            ${it.note ? `<div class="note">${esc(it.note)}</div>` : ''}</div>
+          <div class="bot">
+            <div class="step"><button data-dec="${esc(it.id)}" aria-label="Меньше">−</button><span>${qtyLabel(it)}</span><button data-inc="${esc(it.id)}" aria-label="Больше">+</button></div>
+            <div class="pr"><b class="${it.old ? 's' : ''}">${rub(it.price * q)}</b>${it.old ? `<s>${rub(it.old * q)}</s>` : ''}</div>
+          </div></div>`;
+      }).join('') + '</section>';
+  }).join('');
+  const f = list.fees;
+  const fees = f ? `<div class="m"><span>${esc(f.label)}</span><span>+${rub(f.delivery + f.service)}</span></div><div class="m"><span>Итого с доставкой</span><span>${rub(t.sum + f.delivery + f.service)}</span></div>` : '';
+  $('#view').innerHTML =
+    `<div class="tools"><button class="ghost" id="hide" aria-pressed="${hideDone}">Скрыть купленное</button><button class="ghost" id="reset">Сбросить отметки</button></div>` +
+    groups +
+    `<section class="panel"><div class="ph"><h2>Итого</h2></div><div class="sum">
+      <div class="m"><span>Товары без скидок</span><span>${rub(t.old)}</span></div>
+      <div class="m"><span>Скидки</span><span style="color:var(--sale)">−${rub(t.save)}</span></div>
+      <div class="big"><span>В магазине</span><span>${rub(t.sum)}</span></div>${fees}
+      <div class="m" style="font-size:13px">${esc(list.priceNote || '')}</div></div></section>`;
+  $('#total').textContent = rub(t.sum);
+  $('#totsub').textContent = `экономия ${rub(t.save)}`;
+  $('#bar').hidden = false;
+}
+function fmtAmt(a, unit) {
+  const r = unit === 'шт' ? Math.round(a * 2) / 2 : a >= 100 ? Math.round(a / 5) * 5 : Math.round(a * 4) / 4;
+  return num(r) + ' ' + unit;
+}
+function renderRecipes() {
+  const rs = (list.recipes || []).map(id => DATA.recipes.find(r => r.id === id)).filter(Boolean);
+  $('#bar').hidden = true;
+  if (!rs.length) { $('#view').innerHTML = '<div class="panel"><p>К этому списку рецептов пока нет.</p></div>'; return; }
+  $('#view').innerHTML = rs.map(r => {
+    const s = serv[r.id] ?? r.servings, k = s / r.servings;
+    return `<section class="panel"><h2>${esc(r.title)}</h2>
+      <div class="meta"><span>${esc(r.time)}</span><span>·</span>
+        <div class="step"><button data-sd="${esc(r.id)}" aria-label="Меньше порций">−</button><span>${s} порц.</span><button data-si="${esc(r.id)}" aria-label="Больше порций">+</button></div></div>
+      <ul class="ing">${r.ingredients.map(g => `<li><span>${esc(g.name)}${g.home ? '<span class="home">дома</span>' : ''}</span><span>${fmtAmt(g.amount * k, esc(g.unit))}</span></li>`).join('')}</ul>
+      <ol class="steps" style="margin-top:8px">${r.steps.map(st => `<li><div><b>${esc(st.title)}</b>${esc(st.text)}${st.min ? `<br><span class="min">${st.min} мин</span>` : ''}</div></li>`).join('')}</ol>
+      ${r.notes ? `<div class="note" style="margin:6px 0 12px">${esc(r.notes)}</div>` : ''}</section>`;
+  }).join('');
+}
+function render() {
+  const rec = location.hash === '#recipes';
+  $('#t-list').setAttribute('aria-selected', !rec); $('#t-recipes').setAttribute('aria-selected', rec);
+  $('#title').textContent = list.title;
+  $('#sub').textContent = list.date + ' · ' + list.store;
+  renderChips();
+  $('#askbox').hidden = rec;
+  rec ? renderRecipes() : renderList();
+}
+const REPO_OK = /^[\w.-]+\/[\w.-]+$/;
+function askUrl(text) {
+  const t = text.trim(), title = t.replace(/\s+/g, ' ').slice(0, 80);
+  return `https://github.com/${DATA.repo}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(t)}`;
+}
+function renderAsk() {
+  if (!DATA.repo || !REPO_OK.test(DATA.repo)) return;
+  const draft = store.get('cart:askDraft', '');
+  $('#askbox').innerHTML = `<section class="panel ask"><div class="ph"><h2>Что ещё купить?</h2></div>
+    <textarea id="ask" placeholder="Например: молоко, яйца, что-нибудь к чаю"></textarea>
+    <a class="go" id="askSend" href="${esc(askUrl(draft))}" target="_blank" rel="noopener">Отправить запрос</a>
+    <div class="hint">Откроется GitHub — нажми там «Create». Потом напиши Claude «обнови корзину».</div>
+    <div class="pend" id="pending"></div></section>`;
+  $('#ask').value = draft;
+  loadPending();
+}
+function loadPending() {
+  if (!DATA.repo || !REPO_OK.test(DATA.repo) || !$('#pending')) return;
+  fetch(`https://api.github.com/repos/${DATA.repo}/issues?state=open&per_page=20`, {cache: 'no-store'})
+    .then(r => r.ok ? r.json() : [])
+    .then(a => {
+      const items = (Array.isArray(a) ? a : []).filter(i => !i.pull_request);
+      $('#pending').innerHTML = items.length
+        ? `<div class="pt">Ждут обработки: ${items.length}</div>` + items.map(i => `<div class="pi">${esc(i.title)}</div>`).join('')
+        : '';
+    }).catch(() => {});
+}
+document.addEventListener('input', e => {
+  if (e.target.id !== 'ask') return;
+  store.set('cart:askDraft', e.target.value);
+  $('#askSend').href = askUrl(e.target.value);
+});
+document.addEventListener('click', e => {
+  const a = e.target.closest('#askSend'); if (!a) return;
+  if (!$('#ask').value.trim()) { e.preventDefault(); toast('Напиши, что купить'); $('#ask').focus(); return; }
+  setTimeout(() => { $('#ask').value = ''; store.set('cart:askDraft', ''); a.href = askUrl(''); }, 300);
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && DATA) loadPending(); });
+if ('serviceWorker' in navigator && /\.github\.io$/.test(location.hostname)) {
+  try { navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+}
+function useList(id) {
+  list = DATA.lists.find(l => l.id === id) || DATA.lists[0];
+  bought = new Set(store.get('cart:' + list.id + ':bought', []));
+  qty = store.get('cart:' + list.id + ':qty', {});
+  store.set('cart:last', list.id);
+}
+function tgText() {
+  const t = totals();
+  let out = `🛒 ${list.title} · ${list.date}\n${list.store}\n`;
+  for (const g of list.groups) {
+    const items = list.items.filter(it => it.group === g.id && lineQty(it) > 0);
+    if (!items.length) continue;
+    out += `\n${g.emoji || '•'} ${g.title}\n`;
+    for (const it of items) out += `${bought.has(it.id) ? '✅' : '▫️'} ${it.name}, ${it.unit === 'кг' ? qtyLabel(it) : it.size}${lineQty(it) > 1 && it.unit !== 'кг' ? ' × ' + lineQty(it) : ''} — ${rub(it.price * lineQty(it))}${it.old ? ` (было ${rub(it.old * lineQty(it))})` : ''}\n`;
+  }
+  out += `\n💰 Итого: ${rub(t.sum)} · экономия ${rub(t.save)}`;
+  return out.replace(/ /g, ' ');
+}
+function toast(m) { const e = $('#toast'); e.textContent = m; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 1800); }
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.tick) { bought.has(d.tick) ? bought.delete(d.tick) : bought.add(d.tick); save(); renderList(); return; }
+  if (d.inc || d.dec) {
+    const it = list.items.find(x => x.id === (d.inc || d.dec)), stp = it.step || 1;
+    qty[it.id] = Math.max(0, +(lineQty(it) + (d.inc ? stp : -stp)).toFixed(2)); save(); renderList(); return;
+  }
+  if (d.si || d.sd) { const r = DATA.recipes.find(x => x.id === (d.si || d.sd)); serv[r.id] = Math.max(1, (serv[r.id] ?? r.servings) + (d.si ? 1 : -1)); renderRecipes(); return; }
+  if (d.list) { useList(d.list); render(); return; }
+  if (b.id === 'hide') { hideDone = !hideDone; renderList(); return; }
+  if (b.id === 'reset') { bought.clear(); qty = {}; save(); renderList(); toast('Отметки сброшены'); return; }
+  if (b.id === 't-list') { location.hash = 'list'; return; }
+  if (b.id === 't-recipes') { location.hash = 'recipes'; return; }
+  if (b.id === 'dlgClose') { $('#dlg').close(); return; }
+  if (b.id === 'copy') {
+    const txt = tgText();
+    try { await navigator.clipboard.writeText(txt); toast('Скопировано — вставь в Telegram'); }
+    catch (err) { $('#dlgText').value = txt; try { $('#dlg').showModal(); } catch (x) { $('#dlg').setAttribute('open', ''); } $('#dlgText').select(); }
+  }
+});
+window.addEventListener('hashchange', () => list && render());
+
+const inline = document.getElementById('cart-data');
+const load = inline ? Promise.resolve().then(() => JSON.parse(inline.textContent))
+  : fetch('data/cart.json', {cache: 'no-store'}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+load.then(j => {
+  DATA = j; useList(j.lists[0].id); renderAsk(); render();
+}).catch(() => { $('#sub').textContent = ''; $('#view').innerHTML = '<p class="err">Не получилось загрузить список. Обнови страницу.</p>'; });
+}
+</script>
+</body>
+</html>
